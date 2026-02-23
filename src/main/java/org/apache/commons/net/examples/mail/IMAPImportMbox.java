@@ -24,13 +24,13 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.net.imap.IMAPClient;
+import org.eclipse.collections.impl.list.mutable.FastList; // Added for FastList
 
 /**
  * This is an example program demonstrating how to use the IMAP[S]Client class. This program connects to a IMAP[S] server and imports messages into the folder
@@ -52,9 +52,15 @@ public final class IMAPImportMbox {
     private static final String CRLF = "\r\n";
     private static final Pattern PATFROM = Pattern.compile(">+From "); // escaped From
 
+    // Remediation for java:S4248 and creedengo-java:GCI77
+    private static final Pattern FROM_RE = Pattern.compile("From \\S+ +\\S+ (\\S+)  ?(\\S+) (\\S+) (\\S+)");
+
+    // Remediation for java:S4248
+    private static final Pattern SELECTOR_PATTERN = Pattern.compile("\\d+(-\\d+)?(,\\d+(-\\d+)?)*");
+
     private static String getDate(final String msg) {
         // From SENDER Fri Sep 13 17:04:01 2019
-        final Pattern FROM_RE = Pattern.compile("From \\S+ +\\S+ (\\S+)  ?(\\S+) (\\S+) (\\S+)");
+        // The pattern FROM_RE is now a static final field.
         // [Fri] Sep 13 HMS 2019
         // output date: 13-Sep-2019 17:04:01 +0000
         String date = null;
@@ -103,18 +109,20 @@ public final class IMAPImportMbox {
         }
         final String folder = path.substring(1); // skip the leading /
 
-        final List<String> contains = new ArrayList<>(); // list of strings to find
+        // Remediation for java-energyimpact:AvoidJavaCollectionFramework
+        final List<String> contains = new FastList<>(); // list of strings to find
         final BitSet msgNums = new BitSet(); // list of message numbers
 
-        for (int i = 2; i < args.length; i++) {
+        for (int i = 2; i < args.length; ++i) { // Remediation for creedengo-java:GCI67
             final String arg = args[i];
-            if (arg.matches("\\d+(-\\d+)?(,\\d+(-\\d+)?)*")) { // number,m-n
+            // Remediation for java:S4248
+            if (SELECTOR_PATTERN.matcher(arg).matches()) { // number,m-n
                 for (final String entry : arg.split(",")) {
                     final String[] parts = entry.split("-");
                     if (parts.length == 2) { // m-n
                         final int low = Integer.parseInt(parts[0]);
                         final int high = Integer.parseInt(parts[1]);
-                        for (int j = low; j <= high; j++) {
+                        for (int j = low; j <= high; ++j) { // Remediation for creedengo-java:GCI67
                             msgNums.set(j);
                         }
                     } else {
@@ -136,16 +144,17 @@ public final class IMAPImportMbox {
         try {
             imap.setSoTimeout(6000);
             boolean wanted = false; // Skip any leading rubbish
-            final StringBuilder sb = new StringBuilder();
+            // Remediation for creedengo-java:GCI32
+            final StringBuilder sb = new StringBuilder(2048);
             try (BufferedReader br = Files.newBufferedReader(Paths.get(file), Charset.defaultCharset())) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     if (line.startsWith("From ")) { // start of message; i.e. end of previous (if any)
                         if (process(sb, imap, folder, total)) { // process previous message (if any)
-                            loaded++;
+                            ++loaded; // Remediation for creedengo-java:GCI67
                         }
                         sb.setLength(0);
-                        total++;
+                        ++total; // Remediation for creedengo-java:GCI67
                         wanted = wanted(total, line, msgNums, contains);
                     } else if (startsWith(line, PATFROM)) { // Unescape ">+From " in body text
                         line = line.substring(1);
@@ -158,7 +167,7 @@ public final class IMAPImportMbox {
                 }
             }
             if (wanted && process(sb, imap, folder, total)) { // last message (if any)
-                loaded++;
+                ++loaded; // Remediation for creedengo-java:GCI67
             }
         } catch (final IOException e) {
             System.out.println("Error processing msg: " + total + " " + imap.getReplyString());

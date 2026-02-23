@@ -42,8 +42,8 @@ import java.util.Objects;
 public final class NewGroupsOrNewsQuery {
     private final String date;
     private final String time;
-    private StringBuffer distributions;
-    private StringBuffer newsgroups;
+    private StringBuilder distributions;
+    private StringBuilder newsgroups;
     private final boolean isGMT;
 
     /**
@@ -61,7 +61,9 @@ public final class NewGroupsOrNewsQuery {
         this.newsgroups = null;
         this.isGMT = gmt;
 
-        buffer = new StringBuilder();
+        // The date (YYMMDD) and time (HHMMSS) strings are fixed length (6 characters each).
+        // Initializing StringBuilder with capacity 6 prevents reallocations for these specific uses.
+        buffer = new StringBuilder(6);
 
         // Get year
         num = date.get(Calendar.YEAR);
@@ -104,7 +106,7 @@ public final class NewGroupsOrNewsQuery {
 
         this.date = buffer.toString();
 
-        buffer.setLength(0);
+        buffer.setLength(0); // Reset buffer for time, capacity remains 6.
 
         // Get hour
         num = date.get(Calendar.HOUR_OF_DAY);
@@ -162,7 +164,9 @@ public final class NewGroupsOrNewsQuery {
         if (distributions != null) {
             distributions.append(',');
         } else {
-            distributions = new StringBuffer();
+            // Replaced StringBuffer with StringBuilder for performance and energy efficiency.
+            // Initialized with a reasonable capacity (e.g., 32) to reduce reallocations.
+            distributions = new StringBuilder(32);
         }
         distributions.append(distribution);
     }
@@ -178,7 +182,9 @@ public final class NewGroupsOrNewsQuery {
         if (newsgroups != null) {
             newsgroups.append(',');
         } else {
-            newsgroups = new StringBuffer();
+            // Replaced StringBuffer with StringBuilder for performance and energy efficiency.
+            // Initialized with a reasonable capacity (e.g., 32) to reduce reallocations.
+            newsgroups = new StringBuilder(32);
         }
         newsgroups.append(newsgroup);
     }

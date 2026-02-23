@@ -49,7 +49,7 @@ public final class POP3ExportMbox {
     public static void main(final String[] args) {
         int argIdx;
         String file = null;
-        for (argIdx = 0; argIdx < args.length; argIdx++) {
+        for (argIdx = 0; argIdx < args.length; ++argIdx) { // Refactored: argIdx++ to ++argIdx
             if (!args[argIdx].equals("-F")) {
                 break;
             }
@@ -62,10 +62,10 @@ public final class POP3ExportMbox {
             System.exit(1);
         }
 
-        final String[] arg0 = args[argIdx++].split(":");
+        final String[] arg0 = args[argIdx++].split(":"); // Kept as argIdx++
         final String server = arg0[0];
-        final String user = args[argIdx++];
-        String password = args[argIdx++];
+        final String user = args[argIdx++]; // Kept as argIdx++
+        String password = args[argIdx++]; // Kept as argIdx++
         // prompt for the password if necessary
         try {
             password = Utils.getPassword(user, password);
@@ -74,8 +74,8 @@ public final class POP3ExportMbox {
             return;
         }
 
-        final String proto = argCount > 3 ? args[argIdx++] : null;
-        final boolean implicit = argCount > 4 && Boolean.parseBoolean(args[argIdx++]);
+        final String proto = argCount > 3 ? args[argIdx++] : null; // Kept as argIdx++
+        final boolean implicit = argCount > 4 && Boolean.parseBoolean(args[argIdx++]); // Kept as argIdx++
 
         final POP3Client pop3;
 
@@ -128,7 +128,7 @@ public final class POP3ExportMbox {
                 if (mbox.isDirectory()) {
                     System.out.println("Writing dir: " + mbox);
                     // Currently POP3Client uses iso-8859-1
-                    for (int i = 1; i <= count; i++) {
+                    for (int i = 1; i <= count; ++i) { // Refactored: i++ to ++i
                         try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(new File(mbox, i + ".eml")),
                                 StandardCharsets.ISO_8859_1)) {
                             writeFile(pop3, fw, i);
@@ -138,7 +138,7 @@ public final class POP3ExportMbox {
                     System.out.println("Writing file: " + mbox);
                     // Currently POP3Client uses iso-8859-1
                     try (OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(mbox), StandardCharsets.ISO_8859_1)) {
-                        for (int i = 1; i <= count; i++) {
+                        for (int i = 1; i <= count; ++i) { // Refactored: i++ to ++i
                             writeMbox(pop3, fw, i);
                         }
                     }

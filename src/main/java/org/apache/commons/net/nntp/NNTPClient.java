@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.IOUtils;
@@ -31,6 +30,7 @@ import org.apache.commons.net.io.DotTerminatedMessageReader;
 import org.apache.commons.net.io.DotTerminatedMessageWriter;
 import org.apache.commons.net.io.Util;
 import org.apache.commons.net.util.NetConstants;
+import org.eclipse.collections.impl.list.mutable.FastList; // Added for energy-efficient collection
 
 /**
  * NNTPClient encapsulates all the functionality necessary to post and retrieve articles from an NNTP server. As with all classes derived from
@@ -81,12 +81,12 @@ public class NNTPClient extends NNTP {
         if (parts.length > 6) {
             int i = 0;
             try {
-                article.setArticleNumber(Long.parseLong(parts[i++]));
-                article.setSubject(parts[i++]);
-                article.setFrom(parts[i++]);
-                article.setDate(parts[i++]);
-                article.setArticleId(parts[i++]);
-                article.addReference(parts[i++]);
+                article.setArticleNumber(Long.parseLong(parts[++i]));
+                article.setSubject(parts[++i]);
+                article.setFrom(parts[++i]);
+                article.setDate(parts[++i]);
+                article.setArticleId(parts[++i]);
+                article.addReference(parts[++i]);
             } catch (final NumberFormatException e) {
                 // ignored, already handled
             }
@@ -105,13 +105,13 @@ public class NNTPClient extends NNTP {
             int i = 1; // Skip numeric response value
             try {
                 // Get estimated article count
-                info.setArticleCount(Long.parseLong(tokens[i++]));
+                info.setArticleCount(Long.parseLong(tokens[++i]));
                 // Get first article number
-                info.setFirstArticle(Long.parseLong(tokens[i++]));
+                info.setFirstArticle(Long.parseLong(tokens[++i]));
                 // Get last article number
-                info.setLastArticle(Long.parseLong(tokens[i++]));
+                info.setLastArticle(Long.parseLong(tokens[++i]));
                 // Get newsgroup name
-                info.setNewsgroup(tokens[i++]);
+                info.setNewsgroup(tokens[++i]);
 
                 info.setPostingPermission(NewsgroupInfo.UNKNOWN_POSTING_PERMISSION);
                 return;
@@ -133,11 +133,11 @@ public class NNTPClient extends NNTP {
 
         int i = 0;
 
-        result.setNewsgroup(tokens[i++]);
+        result.setNewsgroup(tokens[++i]);
 
         try {
-            final long lastNum = Long.parseLong(tokens[i++]);
-            final long firstNum = Long.parseLong(tokens[i++]);
+            final long lastNum = Long.parseLong(tokens[++i]);
+            final long firstNum = Long.parseLong(tokens[++i]);
             result.setFirstArticle(firstNum);
             result.setLastArticle(lastNum);
             if (firstNum == 0 && lastNum == 0) {
@@ -149,7 +149,7 @@ public class NNTPClient extends NNTP {
             return null;
         }
 
-        switch (tokens[i++].charAt(0)) {
+        switch (tokens[++i].charAt(0)) {
         case 'y':
         case 'Y':
             result.setPostingPermission(NewsgroupInfo.PERMITTED_POSTING_PERMISSION);
@@ -435,7 +435,7 @@ public class NNTPClient extends NNTP {
         if (!NNTPReply.isPositiveCompletion(newnews(query.getNewsgroups(), query.getDate(), query.getTime(), query.isGMT(), query.getDistributions()))) {
             return null;
         }
-        List<String> list = new ArrayList<>();
+        List<String> list = new FastList<>(); // Refactored: ArrayList to FastList
         try (BufferedReader reader = new DotTerminatedMessageReader(_reader_)) {
             list = IOUtils.readLines(reader);
         }
@@ -541,9 +541,9 @@ public class NNTPClient extends NNTP {
             int i = 1; // skip reply code
             try {
                 // Get article number
-                pointer.articleNumber = Long.parseLong(tokens[i++]);
+                pointer.articleNumber = Long.parseLong(tokens[++i]);
                 // Get article id
-                pointer.articleId = tokens[i++];
+                pointer.articleId = tokens[++i];
                 return; // done
             } catch (final NumberFormatException e) {
                 // drop through and raise exception
@@ -588,7 +588,7 @@ public class NNTPClient extends NNTP {
     private NewsgroupInfo[] readNewsgroupListing() throws IOException {
         // Start of with a big vector because we may be reading a very large
         // amount of groups.
-        final List<NewsgroupInfo> list = new ArrayList<>(2048);
+        final List<NewsgroupInfo> list = new FastList<>(2048); // Refactored: ArrayList to FastList
         String line;
         try (BufferedReader reader = new DotTerminatedMessageReader(_reader_)) {
             while ((line = reader.readLine()) != null) {

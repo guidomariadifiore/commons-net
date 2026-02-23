@@ -29,7 +29,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+// import java.util.ArrayList; // Removed as per refactoring rule
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -45,6 +45,7 @@ import org.apache.commons.net.imap.IMAP;
 import org.apache.commons.net.imap.IMAP.IMAPChunkListener;
 import org.apache.commons.net.imap.IMAPClient;
 import org.apache.commons.net.imap.IMAPReply;
+import org.eclipse.collections.impl.list.mutable.FastList; // Added for refactoring rule
 
 /**
  * This is an example program demonstrating how to use the IMAP[S]Client class. This program connects to a IMAP[S] server and exports selected messages from a
@@ -89,7 +90,7 @@ public final class IMAPExportMbox {
         private final BufferedWriter bufferedWriter;
         volatile AtomicInteger total = new AtomicInteger();
         volatile String lastFetched;
-        volatile List<String> missingIds = new ArrayList<>();
+        volatile List<String> missingIds = new FastList<>(); // Refactored: Rule 1
         volatile long lastSeq = -1;
         private final String lineSeparator;
         private final SimpleDateFormat DATE_FORMAT // for mbox From_ lines
@@ -129,7 +130,7 @@ public final class IMAPExportMbox {
                 System.err.println("No timestamp found in: " + firstLine + "  - using current time");
             }
             String replyTo = "MAILER-DAEMON"; // default
-            for (int i = 1; i < replyStrings.length - 1; i++) {
+            for (int i = 1; i < replyStrings.length - 1; ++i) { // Refactored: Rule 2
                 final String line = replyStrings[i];
                 if (line.startsWith("Return-Path: ")) {
                     final String[] parts = line.split(" ", 2);
@@ -159,7 +160,7 @@ public final class IMAPExportMbox {
                     System.err.println("[" + total + "] " + firstLine);
                 }
                 // Skip first and last lines
-                for (int i = 1; i < replyStrings.length - 1; i++) {
+                for (int i = 1; i < replyStrings.length - 1; ++i) { // Refactored: Rule 2
                     final String line = replyStrings[i];
                     if (startsWith(line, PATFROM)) {
                         bufferedWriter.append('>'); // Escape a From_ line
@@ -188,7 +189,7 @@ public final class IMAPExportMbox {
                     if (lastSeq != -1) {
                         final long missing = msgSeq - lastSeq - 1;
                         if (missing != 0) {
-                            for (long j = lastSeq + 1; j < msgSeq; j++) {
+                            for (long j = lastSeq + 1; j < msgSeq; ++j) { // Refactored: Rule 2
                                 missingIds.add(String.valueOf(j));
                             }
                             System.err.println("*** Sequence error: current=" + msgSeq + " previous=" + lastSeq + " Missing=" + missing);
@@ -227,6 +228,7 @@ public final class IMAPExportMbox {
 
     // AAAC NO [TEMPFAIL] FETCH Temporary failure on server [CODE: WBL]
     private static final Pattern PATTEMPFAIL = Pattern.compile("[A-Z]{4} NO \\[TEMPFAIL\\] FETCH .*");
+    private static final Pattern URI_PATH_SPLIT_PATTERN = Pattern.compile("(imaps?://[^/]+)(/.*)"); // Refactored: Rule 3
     private static final int CONNECT_TIMEOUT = 10; // Seconds
 
     private static final int READ_TIMEOUT = 10;
@@ -241,23 +243,33 @@ public final class IMAPExportMbox {
         boolean printMarker = false;
         int retryWaitSecs = 0;
 
-        for (argIdx = 0; argIdx < args.length; argIdx++) {
-            if (args[argIdx].equals("-c")) {
-                connect_timeout = Integer.parseInt(args[++argIdx]);
-            } else if (args[argIdx].equals("-r")) {
-                read_timeout = Integer.parseInt(args[++argIdx]);
-            } else if (args[argIdx].equals("-R")) {
-                retryWaitSecs = Integer.parseInt(args[++argIdx]);
-            } else if (args[argIdx].equals("-LF")) {
-                eol = LF;
-            } else if (args[argIdx].equals("-CRLF")) {
-                eol = CRLF;
-            } else if (args[argIdx].equals("-.")) {
-                printHash = true;
-            } else if (args[argIdx].equals("-X")) {
-                printMarker = true;
-            } else {
-                break;
+        // Refactored: Rule 5 - Convert if-else if to switch with labeled break
+        argumentParsingLoop:
+        for (; argIdx < args.length; ++argIdx) { // Refactored: Rule 2
+            switch (args[argIdx]) {
+                case "-c":
+                    connect_timeout = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "-r":
+                    read_timeout = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "-R":
+                    retryWaitSecs = Integer.parseInt(args[++argIdx]);
+                    break;
+                case "-LF":
+                    eol = LF;
+                    break;
+                case "-CRLF":
+                    eol = CRLF;
+                    break;
+                case "-.":
+                    printHash = true;
+                    break;
+                case "-X":
+                    printMarker = true;
+                    break;
+                default:
+                    break argumentParsingLoop; // Break the outer for loop
             }
         }
 
@@ -285,7 +297,7 @@ public final class IMAPExportMbox {
         try {
             uri = URI.create(uriString);
         } catch (final IllegalArgumentException e) { // cannot parse the path as is; let's pull it apart and try again
-            final Matcher m = Pattern.compile("(imaps?://[^/]+)(/.*)").matcher(uriString);
+            final Matcher m = URI_PATH_SPLIT_PATTERN.matcher(uriString); // Refactored: Rule 3
             if (!m.matches()) {
                 throw e;
             }
@@ -298,9 +310,9 @@ public final class IMAPExportMbox {
         // Handle 0, 1 or multiple item names
         if (argCount > 3) {
             if (argCount > 4) {
-                final StringBuilder sb = new StringBuilder();
+                final StringBuilder sb = new StringBuilder(args.length * 20); // Refactored: Rule 4
                 sb.append("(");
-                for (int i = 4; i <= argCount; i++) {
+                for (int i = 4; i <= argCount; ++i) { // Refactored: Rule 2
                     if (i > 4) {
                         sb.append(" ");
                     }
@@ -331,7 +343,7 @@ public final class IMAPExportMbox {
                     checkSequence);
         } else {
             final Path mboxPath = Paths.get(file);
-            if (Files.exists(mboxPath) && Files.size(mboxPath) > 0) {
+            if (mboxPath.toFile().exists() && Files.size(mboxPath) > 0) { // Refactored: Rule 6
                 throw new IOException("mailbox file: " + mboxPath + " already exists and is non-empty!");
             }
             System.out.println("Creating file " + mboxPath);
@@ -415,7 +427,7 @@ public final class IMAPExportMbox {
                 mboxListener.close();
                 final Iterator<String> missingIds = mboxListener.missingIds.iterator();
                 if (missingIds.hasNext()) {
-                    final StringBuilder sb = new StringBuilder();
+                    final StringBuilder sb = new StringBuilder(mboxListener.missingIds.size() * 10); // Refactored: Rule 4
                     for (;;) {
                         sb.append(missingIds.next());
                         if (!missingIds.hasNext()) {

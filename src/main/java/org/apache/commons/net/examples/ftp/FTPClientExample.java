@@ -113,7 +113,7 @@ public final class FTPClientExample {
             @Override
             public void bytesTransferred(final long totalBytesTransferred, final int bytesTransferred, final long streamSize) {
                 final long megs = totalBytesTransferred / 1000000;
-                for (long l = megsTotal; l < megs; l++) {
+                for (long l = megsTotal; l < megs; ++l) { // Refactored: l++ -> ++l
                     System.err.print("#");
                 }
                 megsTotal = megs;
@@ -159,7 +159,7 @@ public final class FTPClientExample {
         String opts = null;
 
         int base = 0;
-        for (base = 0; base < args.length; base++) {
+        for (base = 0; base < args.length; ++base) { // Refactored: base++ -> ++base
             if (args[base].equals("-s")) {
                 storeFile = true;
             } else if (args[base].equals("-a")) {
@@ -254,7 +254,7 @@ public final class FTPClientExample {
             System.exit(1);
         }
 
-        String server = args[base++];
+        String server = args[base++]; // Semantically sensitive, not changed
         int port = 0;
         final String[] parts = server.split(":");
         if (parts.length == 2) {
@@ -262,18 +262,18 @@ public final class FTPClientExample {
             port = Integer.parseInt(parts[1]);
         }
         if (user == null) {
-            user = args[base++];
-            password = args[base++];
+            user = args[base++]; // Semantically sensitive, not changed
+            password = args[base++]; // Semantically sensitive, not changed
         }
 
         String remote = null;
         if (args.length - base > 0) {
-            remote = args[base++];
+            remote = args[base++]; // Semantically sensitive, not changed
         }
 
         String local = null;
         if (args.length - base > 0) {
-            local = args[base++];
+            local = args[base++]; // Semantically sensitive, not changed
         }
 
         final FTPClient ftp;

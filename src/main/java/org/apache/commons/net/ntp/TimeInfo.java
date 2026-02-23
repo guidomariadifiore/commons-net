@@ -19,8 +19,8 @@ package org.apache.commons.net.ntp;
 
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.collections.impl.list.mutable.FastList;
 
 /**
  * Wrapper class to network time packet messages (NTP, etc.) that computes related timing info and stats.
@@ -107,7 +107,7 @@ public class TimeInfo {
      */
     public void addComment(final String comment) {
         if (comments == null) {
-            comments = new ArrayList<>();
+            comments = new FastList<>();
         }
         comments.add(comment);
     }
@@ -121,7 +121,7 @@ public class TimeInfo {
         }
         detailsComputed = true;
         if (comments == null) {
-            comments = new ArrayList<>();
+            comments = new FastList<>();
         }
 
         final TimeStamp origNtpTime = message.getOriginateTimeStamp();
