@@ -21,7 +21,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.eclipse.collections.impl.map.mutable.UnifiedMap;
 
 /**
  * This is an implementation of a message threading algorithm, as originally devised by Zamie Zawinski.
@@ -44,7 +43,7 @@ public class Threader {
      * @param threadable
      * @param idTable
      */
-    private void buildContainer(final Threadable threadable, final UnifiedMap<String, NntpThreadContainer> idTable) {
+    private void buildContainer(final Threadable threadable, final HashMap<String, NntpThreadContainer> idTable) {
         String id = threadable.messageThreadId();
         NntpThreadContainer container = idTable.get(id);
         int bogusIdCount = 0;
@@ -53,7 +52,7 @@ public class Threader {
         // be a duplicate id, in which case we will need to generate a bogus placeholder id
         if (container != null) {
             if (container.threadable != null) { // oops! duplicate ids...
-                ++bogusIdCount; // Avoid dead local store warning
+                bogusIdCount++; // Avoid dead local store warning
                 id = "<Bogus-id:" + bogusIdCount + ">";
                 container = null;
             } else {
@@ -145,7 +144,7 @@ public class Threader {
      * @param idTable
      * @return root the NntpThreadContainer representing the root node
      */
-    private NntpThreadContainer findRootSet(final UnifiedMap<String, NntpThreadContainer> idTable) {
+    private NntpThreadContainer findRootSet(final HashMap<String, NntpThreadContainer> idTable) {
         final NntpThreadContainer root = new NntpThreadContainer();
         for (final Map.Entry<String, NntpThreadContainer> entry : idTable.entrySet()) {
             final NntpThreadContainer c = entry.getValue();
@@ -170,11 +169,11 @@ public class Threader {
         int count = 0;
 
         for (NntpThreadContainer c = root.child; c != null; c = c.next) {
-            ++count;
+            count++;
         }
 
         // TODO verify this will avoid rehashing
-        UnifiedMap<String, NntpThreadContainer> subjectTable = new UnifiedMap<>((int) (count * 1.2), (float) 0.9);
+        HashMap<String, NntpThreadContainer> subjectTable = new HashMap<>((int) (count * 1.2), (float) 0.9);
         count = 0;
 
         for (NntpThreadContainer c = root.child; c != null; c = c.next) {
@@ -205,7 +204,7 @@ public class Threader {
             if (old == null || c.threadable == null && old.threadable != null
                     || old.threadable != null && old.threadable.subjectIsReply() && c.threadable != null && !c.threadable.subjectIsReply()) {
                 subjectTable.put(subj, c);
-                ++count;
+                count++;
             }
         }
 
@@ -371,7 +370,7 @@ public class Threader {
             return null;
         }
 
-        UnifiedMap<String, NntpThreadContainer> idTable = new UnifiedMap<>();
+        HashMap<String, NntpThreadContainer> idTable = new HashMap<>();
 
         // walk through each Threadable element
         for (final Threadable t : messages) {

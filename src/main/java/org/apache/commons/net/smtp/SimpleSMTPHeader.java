@@ -51,9 +51,9 @@ public class SimpleSMTPHeader {
     private final String subject;
     private final String from;
     private final String to;
-    private final StringBuilder headerFields;
+    private final StringBuffer headerFields;
     private boolean hasHeaderDate;
-    private StringBuilder cc;
+    private StringBuffer cc;
 
     /**
      * Creates a new SimpleSMTPHeader instance initialized with the given from, to, and subject header field values.
@@ -69,7 +69,7 @@ public class SimpleSMTPHeader {
         this.to = to;
         this.from = from;
         this.subject = subject;
-        this.headerFields = new StringBuilder(256); // Initialized with estimated capacity for energy efficiency
+        this.headerFields = new StringBuffer();
         this.cc = null;
     }
 
@@ -80,7 +80,7 @@ public class SimpleSMTPHeader {
      */
     public void addCC(final String address) {
         if (cc == null) {
-            cc = new StringBuilder(128); // Initialized with estimated capacity for energy efficiency
+            cc = new StringBuffer();
         } else {
             cc.append(", ");
         }
@@ -118,7 +118,7 @@ public class SimpleSMTPHeader {
      */
     @Override
     public String toString() {
-        final StringBuilder header = new StringBuilder(1024); // Initialized with estimated capacity for energy efficiency
+        final StringBuilder header = new StringBuilder();
 
         final String pattern = "EEE, dd MMM yyyy HH:mm:ss Z"; // Fri, 21 Nov 1997 09:55:06 -0600
         final SimpleDateFormat format = new SimpleDateFormat(pattern, Locale.ENGLISH);
