@@ -1,0 +1,8 @@
+java.io.FileInputStream.readBytes,0.0000
+jdk.internal.util.DecimalDigits.uncheckedGetCharsLatin1,8.6421
+java.util.Iterator.forEachRemaining,18.7245
+java.util.regex.Pattern.escape,0.3601
+org.junit.jupiter.params.provider.FieldArgumentsProvider$$Lambda/0x000000000a265000.<init>,0.3601
+org.apache.commons.collections4.IteratorUtils.size,7.9219
+sun.nio.ch.EPoll.wait,0.0000
+java.lang.ref.Reference.waitForReferencePendingList,0.0000

@@ -1,0 +1,10 @@
+java.io.FileInputStream.readBytes,0.0000
+java.lang.AbstractStringBuilder.<init>,0.3706
+org.junit.platform.engine.support.store.NamespacedHierarchicalStore$StoredValue.evaluate,0.3706
+java.nio.charset.CharsetEncoder.replaceWith,0.3706
+jdk.internal.util.DecimalDigits.uncheckedGetCharsLatin1,15.1960
+java.util.stream.ReferencePipeline$3$1.accept,0.3706
+java.util.Iterator.forEachRemaining,13.7135
+org.apache.commons.collections4.IteratorUtils.size,6.6714
+sun.nio.ch.EPoll.wait,0.0000
+java.lang.ref.Reference.waitForReferencePendingList,0.0000
