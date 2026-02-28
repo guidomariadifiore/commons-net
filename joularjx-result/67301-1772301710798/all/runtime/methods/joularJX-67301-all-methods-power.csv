@@ -1,0 +1,6 @@
+java.io.FileInputStream.readBytes,0.0000
+jdk.internal.misc.Unsafe.allocateInstance,0.3427
+jdk.internal.util.DecimalDigits.uncheckedGetCharsLatin1,16.1077
+java.util.Iterator.forEachRemaining,17.8213
+java.lang.ref.Reference.waitForReferencePendingList,0.0000
+sun.nio.ch.EPoll.wait,0.0000

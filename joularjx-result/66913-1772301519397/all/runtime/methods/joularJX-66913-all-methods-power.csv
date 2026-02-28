@@ -1,0 +1,8 @@
+java.io.FileInputStream.readBytes,0.0052
+jdk.internal.misc.Unsafe.park,0.0001
+org.junit.platform.engine.UniqueIdFormat.parse,0.3442
+jdk.internal.util.DecimalDigits.uncheckedGetCharsLatin1,10.6695
+java.util.Iterator.forEachRemaining,22.3715
+org.apache.commons.collections4.IteratorUtils.size,1.0325
+java.lang.ref.Reference.waitForReferencePendingList,0.0000
+sun.nio.ch.EPoll.wait,0.0000

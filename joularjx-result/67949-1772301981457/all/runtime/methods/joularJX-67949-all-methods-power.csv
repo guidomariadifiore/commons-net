@@ -1,0 +1,11 @@
+java.io.FileInputStream.readBytes,0.0000
+java.util.Collection.stream,0.3544
+org.junit.platform.launcher.core.CompositeEngineExecutionListener.lambda$executionStarted$4,0.3544
+java.util.stream.StreamOpFlag.fromCharacteristics,0.3544
+jdk.internal.util.DecimalDigits.uncheckedGetCharsLatin1,12.4029
+java.util.Iterator.forEachRemaining,19.8446
+java.util.Arrays.copyOfRange,0.3544
+java.util.HashMap.hash,0.3544
+org.apache.commons.collections4.IteratorUtils.size,1.4175
+sun.nio.ch.EPoll.wait,0.0000
+java.lang.ref.Reference.waitForReferencePendingList,0.0000
